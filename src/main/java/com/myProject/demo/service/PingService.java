@@ -7,4 +7,8 @@ public class PingService {
     public String ping() {
         return "Status: ok";
     }
+
+    public String health() {
+        return "UP";
+    }
 }

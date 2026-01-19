@@ -1,6 +1,7 @@
-package com.myProject.demo;
+package com.myProject.demo.controller;
 
 import com.myProject.demo.service.PingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,7 +14,12 @@ public class PingController {
     }
 
     @GetMapping("/ping")
-    public String ping() {
-        return pingService.ping();
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok(pingService.ping());
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok(pingService.health());
     }
 }
