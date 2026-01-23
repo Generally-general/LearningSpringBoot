@@ -1,6 +1,8 @@
 package com.myProject.demo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 
@@ -11,11 +13,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank
     private String firstName;
     private String middleName;
+    @NotBlank
     private String lastName;
+    @NotBlank
+    @Email
     private String email;
     private LocalDate dateOfBirth;
+    @NotBlank
     private String phone;
 
     public Integer getId() {
