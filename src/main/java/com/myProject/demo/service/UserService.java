@@ -41,4 +41,12 @@ public class UserService {
                     return userRepository.save(existingUser);
                 });
     }
+
+    public boolean deleteUser(Integer id) {
+        if(!userRepository.existsById(id)) {
+            return false;
+        }
+        userRepository.deleteById(id);
+        return true;
+    }
 }
