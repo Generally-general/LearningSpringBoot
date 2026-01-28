@@ -1,7 +1,7 @@
 package com.myProject.demo.controller;
 
+import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
-import com.myProject.demo.entity.User;
 import com.myProject.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,8 +38,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        User savedUser = userService.createUser(user);
+    public ResponseEntity<UserResponse> createUser(
+            @Valid @RequestBody UserRequest request
+    ) {
+        UserResponse savedUser = userService.createUser(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -47,8 +49,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @Valid @RequestBody User user) {
-        return userService.updateUser(id, user)
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Integer id,
+            @Valid @RequestBody UserRequest request
+    ) {
+        return userService.updateUser(id, request)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

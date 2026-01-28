@@ -12,17 +12,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @NotBlank
     private String firstName;
     private String middleName;
-    @NotBlank
     private String lastName;
-    @NotBlank
-    @Email
     private String email;
     private LocalDate dateOfBirth;
-    @NotBlank
     private String phone;
 
     public Integer getId() {

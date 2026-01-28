@@ -1,5 +1,6 @@
 package com.myProject.demo.service;
 
+import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.repository.UserRepository;
@@ -25,21 +26,31 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserResponse createUser(UserRequest request) {
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setMiddleName(request.getMiddleName());
+        user.setLastName(request.getLastName());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+
+        User saved = userRepository.save(user);
+        return toResponse(saved);
     }
 
-    public Optional<User> updateUser(Integer id, User updatedData) {
+    public Optional<UserResponse> updateUser(Integer id, UserRequest request) {
         return userRepository.findById(id)
                 .map(existingUser -> {
-                    existingUser.setFirstName(updatedData.getFirstName());
-                    existingUser.setMiddleName(updatedData.getMiddleName());
-                    existingUser.setLastName(updatedData.getLastName());
-                    existingUser.setDateOfBirth(updatedData.getDateOfBirth());
-                    existingUser.setEmail(updatedData.getEmail());
-                    existingUser.setPhone(updatedData.getPhone());
+                    existingUser.setFirstName(request.getFirstName());
+                    existingUser.setMiddleName(request.getMiddleName());
+                    existingUser.setLastName(request.getLastName());
+                    existingUser.setDateOfBirth(request.getDateOfBirth());
+                    existingUser.setEmail(request.getEmail());
+                    existingUser.setPhone(request.getPhone());
 
-                    return userRepository.save(existingUser);
+                    User saved = userRepository.save(existingUser);
+                    return toResponse(saved);
                 });
     }
 
