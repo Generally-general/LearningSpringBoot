@@ -1,5 +1,6 @@
 package com.myProject.demo.controller;
 
+import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.service.UserService;
 import jakarta.validation.Valid;
@@ -20,13 +21,18 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        List<UserResponse> responses = userService.getAllUsers()
+                .stream()
+                .map(userService::toResponse)
+                .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
         return userService.getUserById(id)
+                .map(userService::toResponse)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
