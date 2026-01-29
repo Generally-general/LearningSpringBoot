@@ -5,11 +5,13 @@ import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
