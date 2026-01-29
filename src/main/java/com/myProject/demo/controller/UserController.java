@@ -31,10 +31,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
-        return userService.getUserById(id)
-                .map(userService::toResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        UserResponse response = userService.getUserResponseByIdOrThrow(id);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
@@ -53,19 +51,13 @@ public class UserController {
             @PathVariable Integer id,
             @Valid @RequestBody UserRequest request
     ) {
-        return userService.updateUser(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        UserResponse updated = userService.updateUserOrThrow(id, request);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        boolean deleted = userService.deleteUser(id);
-
-        if(!deleted) {
-            return ResponseEntity.notFound().build();
-        }
-
+        userService.deleteUserOrThrow(id);
         return ResponseEntity.noContent().build();
     }
 }
