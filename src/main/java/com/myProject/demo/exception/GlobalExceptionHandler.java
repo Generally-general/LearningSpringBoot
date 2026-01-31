@@ -44,4 +44,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(404).body(error);
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflict(
+            ConflictException ex,
+            HttpServletRequest request
+    ) {
+        ApiError error = new ApiError(
+                409,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(409).body(error);
+    }
 }

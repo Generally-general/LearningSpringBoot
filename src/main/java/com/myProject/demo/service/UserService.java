@@ -3,10 +3,11 @@ package com.myProject.demo.service;
 import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
+import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,12 +30,18 @@ public class UserService {
         return toResponse(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUserResponses() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public UserResponse createUser(UserRequest request) {
         User user = new User();
+        if(userRepository.existsByEmail(request.getEmail())) {
+            throw new ConflictException("Email already exists");
+        }
         return getUserResponse(request, user);
     }
 
@@ -43,6 +50,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id " + id
                 ));
+        if(!existingUser.getEmail().equals(request.getEmail())
+            && userRepository.existsByEmail(request.getEmail())) {
+            throw new ConflictException("Email already exists");
+        }
         return getUserResponse(request, existingUser);
     }
 

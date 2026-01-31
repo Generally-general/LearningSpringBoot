@@ -22,11 +22,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getUsers() {
-        List<UserResponse> responses = userService.getAllUsers()
-                .stream()
-                .map(userService::toResponse)
-                .toList();
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(userService.getAllUserResponses());
     }
 
     @GetMapping("/{id}")
