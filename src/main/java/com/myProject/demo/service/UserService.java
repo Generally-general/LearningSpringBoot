@@ -77,6 +77,37 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public UserResponse patchUserOrThrow(Integer id, UserRequest request) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with id " + id
+                ));
+
+        if(request.getFirstName() != null) {
+            existingUser.setFirstName(request.getFirstName());
+        }
+        if(request.getMiddleName() != null) {
+            existingUser.setMiddleName(request.getMiddleName());
+        }
+        if(request.getLastName() != null) {
+            existingUser.setLastName(request.getLastName());
+        }
+        if(request.getDateOfBirth() != null) {
+            existingUser.setDateOfBirth(request.getDateOfBirth());
+        }
+        if(request.getEmail() != null) {
+            if(!existingUser.getEmail().equals(request.getEmail())
+                    && userRepository.existsByEmail(request.getEmail())) {
+                throw new ConflictException("Email already exists");
+            }
+            existingUser.setEmail(request.getEmail());
+        }
+        if(request.getPhone() != null) {
+            existingUser.setPhone(request.getPhone());
+        }
+        return toResponse(existingUser);
+    }
+
     public UserResponse toResponse(User user) {
         UserResponse dto = new UserResponse();
         dto.setId(user.getId());

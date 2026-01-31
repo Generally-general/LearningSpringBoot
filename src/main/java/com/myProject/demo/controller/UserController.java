@@ -56,4 +56,13 @@ public class UserController {
         userService.deleteUserOrThrow(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponse> patchUser(
+            @PathVariable Integer id,
+            @RequestBody UserRequest request
+    ) {
+        UserResponse updated = userService.patchUserOrThrow(id, request);
+        return ResponseEntity.ok(updated);
+    }
 }
