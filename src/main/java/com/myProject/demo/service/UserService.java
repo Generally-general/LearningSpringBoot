@@ -6,10 +6,10 @@ import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -30,11 +30,9 @@ public class UserService {
         return toResponse(user);
     }
 
-    public List<UserResponse> getAllUserResponses() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(this::toResponse);
     }
 
     public UserResponse createUser(UserRequest request) {
@@ -42,7 +40,7 @@ public class UserService {
         if(userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already exists");
         }
-        return getUserResponse(request, user);
+        return mapAndSaveUser(request, user);
     }
 
     public UserResponse updateUserOrThrow(Integer id, UserRequest request) {
@@ -54,19 +52,7 @@ public class UserService {
             && userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already exists");
         }
-        return getUserResponse(request, existingUser);
-    }
-
-    private UserResponse getUserResponse(UserRequest request, User existingUser) {
-        existingUser.setFirstName(request.getFirstName());
-        existingUser.setMiddleName(request.getMiddleName());
-        existingUser.setLastName(request.getLastName());
-        existingUser.setDateOfBirth(request.getDateOfBirth());
-        existingUser.setEmail(request.getEmail());
-        existingUser.setPhone(request.getPhone());
-
-        User saved = userRepository.save(existingUser);
-        return toResponse(saved);
+        return mapAndSaveUser(request, existingUser);
     }
 
     public void deleteUserOrThrow(Integer id) {
@@ -105,7 +91,21 @@ public class UserService {
         if(request.getPhone() != null) {
             existingUser.setPhone(request.getPhone());
         }
-        return toResponse(existingUser);
+
+        User saved = userRepository.save(existingUser);
+        return toResponse(saved);
+    }
+
+    private UserResponse mapAndSaveUser(UserRequest request, User existingUser) {
+        existingUser.setFirstName(request.getFirstName());
+        existingUser.setMiddleName(request.getMiddleName());
+        existingUser.setLastName(request.getLastName());
+        existingUser.setDateOfBirth(request.getDateOfBirth());
+        existingUser.setEmail(request.getEmail());
+        existingUser.setPhone(request.getPhone());
+
+        User saved = userRepository.save(existingUser);
+        return toResponse(saved);
     }
 
     public UserResponse toResponse(User user) {
