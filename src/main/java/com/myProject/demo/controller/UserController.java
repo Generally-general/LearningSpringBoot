@@ -1,7 +1,10 @@
 package com.myProject.demo.controller;
 
+import com.myProject.demo.dto.PostRequest;
+import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
+import com.myProject.demo.service.PostService;
 import com.myProject.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -18,9 +21,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PostService postService) {
         this.userService = userService;
+        this.postService = postService;
     }
 
     @GetMapping
@@ -73,5 +78,17 @@ public class UserController {
     ) {
         UserResponse updated = userService.patchUserOrThrow(id, request);
         return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/{userId}/posts")
+    public ResponseEntity<PostResponse> createPost(
+            @PathVariable Integer userId,
+            @Valid @RequestBody PostRequest request
+    ) {
+        PostResponse savedPost = postService.createPost(userId, request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(savedPost);
     }
 }
