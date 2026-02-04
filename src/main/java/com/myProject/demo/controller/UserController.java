@@ -25,10 +25,12 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserResponse>> getUsers(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String email,
             @PageableDefault(size = 10, sort = "id")
             Pageable pageable
     ) {
-        Page<UserResponse> page = userService.getUsers(pageable);
+        Page<UserResponse> page = userService.getUsers(firstName, email, pageable);
         return ResponseEntity.ok(page);
     }
 

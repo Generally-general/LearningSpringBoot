@@ -30,9 +30,30 @@ public class UserService {
         return toResponse(user);
     }
 
-    public Page<UserResponse> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(this::toResponse);
+    public Page<UserResponse> getUsers(
+            String firstName,
+            String email,
+            Pageable pageable
+    ) {
+        Page<User> page;
+
+        if(firstName != null && email != null) {
+            page = userRepository
+                    .findByFirstNameContainingIgnoreCaseAndEmailContainingIgnoreCase(
+                            firstName, email, pageable);
+        } else if(firstName != null) {
+            page = userRepository
+                    .findByFirstNameContainingIgnoreCase(
+                            firstName, pageable);
+        } else if(email != null) {
+            page = userRepository
+                    .findByEmailContainingIgnoreCase(
+                            email, pageable);
+        } else {
+            page = userRepository.findAll(pageable);
+        }
+
+        return page.map(this::toResponse);
     }
 
     public UserResponse createUser(UserRequest request) {
