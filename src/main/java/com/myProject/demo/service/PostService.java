@@ -4,6 +4,7 @@ import com.myProject.demo.dto.PostRequest;
 import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.entity.Post;
 import com.myProject.demo.entity.User;
+import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.PostRepository;
 import com.myProject.demo.repository.UserRepository;
@@ -54,6 +55,28 @@ public class PostService {
         post.setUser(user);
 
         return mapAndSavePost(request, post);
+    }
+
+    public PostResponse updatePostOrThrow(Integer userId, Integer postId, PostRequest request) {
+        Post existingPost = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Post not found with id " + postId
+                ));
+        if(!existingPost.getUser().getId().equals(userId)) {
+            throw new ConflictException("Post does not belong to this user");
+        }
+        return mapAndSavePost(request, existingPost);
+    }
+
+    public void deletePostOrThrow(Integer userId, Integer postId) {
+        Post existingPost = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Post not found with id " + postId
+                ));
+        if(!existingPost.getUser().getId().equals(userId)) {
+            throw new ConflictException("Post does not belong to this user");
+        }
+        postRepository.delete(existingPost);
     }
 
     private PostResponse mapAndSavePost(PostRequest request, Post existingPost) {

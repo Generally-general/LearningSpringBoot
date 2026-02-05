@@ -100,4 +100,20 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(savedPost);
     }
+
+    @PutMapping("/{userId}/posts/{postId}")
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable Integer userId,
+            @PathVariable Integer postId,
+            @Valid @RequestBody PostRequest request
+    ) {
+        PostResponse updated = postService.updatePostOrThrow(userId, postId, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{userId}/posts/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Integer userId ,@PathVariable Integer postId) {
+        postService.deletePostOrThrow(userId, postId);
+        return ResponseEntity.noContent().build();
+    }
 }
