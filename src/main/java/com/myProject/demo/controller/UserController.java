@@ -81,10 +81,11 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/posts")
-    public ResponseEntity<List<PostResponse>> getPostsByUser(
-            @PathVariable Integer userId
+    public ResponseEntity<Page<PostResponse>> getPostsByUser(
+            @PathVariable Integer userId,
+            @PageableDefault(size = 5, sort = "id") Pageable pageable
     ) {
-        List<PostResponse> response = postService.getPostsByUserOrThrow(userId);
+        Page<PostResponse> response = postService.getPostsByUserOrThrow(userId, pageable);
 
         return ResponseEntity.ok(response);
     }

@@ -9,6 +9,8 @@ import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.PostRepository;
 import com.myProject.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,16 +27,21 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    public List<PostResponse> getPostsByUserOrThrow(Integer userId) {
+    public Page<PostResponse> getPosts(
+            Pageable pageable
+    ) {
+        return postRepository.findAll(pageable)
+                .map(this::toResponse);
+    }
+
+    public Page<PostResponse> getPostsByUserOrThrow(Integer userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id " + userId
                 ));
-        List<Post> posts = postRepository.findByUser(user);
+        Page<Post> posts = postRepository.findByUser(user, pageable);
 
-        return posts.stream()
-                .map(this::toResponse)
-                .toList();
+        return posts.map(this::toResponse);
     }
 
     public PostResponse getPostByIdOrThrow(Integer postId) {
@@ -99,4 +106,6 @@ public class PostService {
         dto.setCreatedAt(post.getCreatedAt());
         return dto;
     }
+
+
 }
