@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -23,10 +24,22 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
+    public List<PostResponse> getPostsByUserOrThrow(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with id " + userId
+                ));
+        List<Post> posts = postRepository.findByUser(user);
+
+        return posts.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public PostResponse getPostByIdOrThrow(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id " + postId
+                        "Post not found with id " + postId
                 ));
 
         return toResponse(post);

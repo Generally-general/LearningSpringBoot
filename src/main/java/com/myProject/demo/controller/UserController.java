@@ -80,6 +80,15 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 
+    @GetMapping("/{userId}/posts")
+    public ResponseEntity<List<PostResponse>> getPostsByUser(
+            @PathVariable Integer userId
+    ) {
+        List<PostResponse> response = postService.getPostsByUserOrThrow(userId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{userId}/posts")
     public ResponseEntity<PostResponse> createPost(
             @PathVariable Integer userId,
