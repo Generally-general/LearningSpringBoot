@@ -1,5 +1,6 @@
 package com.myProject.demo.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -18,6 +19,7 @@ public class UserRequest {
 
     @NotBlank
     @Email
+    @Schema(description="User email")
     private String email;
     private String phone;
 

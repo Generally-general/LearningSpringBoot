@@ -3,6 +3,8 @@ package com.myProject.demo.controller;
 import com.myProject.demo.dto.*;
 import com.myProject.demo.service.PostService;
 import com.myProject.demo.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name="Users")
 public class UserController {
 
     private final UserService userService;
@@ -26,6 +29,7 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary="Get All Users")
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String email,
@@ -37,12 +41,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary="Get User By Id")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
         UserResponse response = userService.getUserResponseByIdOrThrow(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User fetched", response));
     }
 
     @PostMapping
+    @Operation(summary="Create User")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody UserRequest request
     ) {
@@ -54,6 +60,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary="Update User")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Integer id,
             @Valid @RequestBody UserRequest request
@@ -63,12 +70,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary="Delete User")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Integer id) {
         userService.deleteUserOrThrow(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deleted", null));
     }
 
     @PatchMapping("/{id}")
+    @Operation(summary="Patch User")
     public ResponseEntity<ApiResponse<UserResponse>> patchUser(
             @PathVariable Integer id,
             @RequestBody UserRequest request
@@ -78,6 +87,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/posts")
+    @Operation(summary="Get All Posts By User")
     public ResponseEntity<ApiResponse<Page<PostResponse>>> getPostsByUser(
             @PathVariable Integer userId,
             @PageableDefault(size = 5, sort = "id") Pageable pageable
@@ -88,6 +98,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/posts")
+    @Operation(summary="Create Post")
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
             @PathVariable Integer userId,
             @Valid @RequestBody PostRequest request
