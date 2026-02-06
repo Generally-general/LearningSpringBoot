@@ -1,5 +1,6 @@
 package com.myProject.demo.controller;
 
+import com.myProject.demo.dto.ApiResponse;
 import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.service.PostService;
 import org.springframework.data.domain.Page;
@@ -18,16 +19,16 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<PostResponse>> getPosts(
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> getPosts(
             @PageableDefault(size = 5, sort = "id") Pageable pageable
     ) {
         Page<PostResponse> page = postService.getPosts(pageable);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Posts fetched", page));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> getPostByPostId(@PathVariable Integer postId) {
+    public ResponseEntity<ApiResponse<PostResponse>> getPostById(@PathVariable Integer postId) {
         PostResponse post = postService.getPostByIdOrThrow(postId);
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Post By ID fetched", post));
     }
 }
