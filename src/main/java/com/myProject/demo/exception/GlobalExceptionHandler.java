@@ -2,6 +2,8 @@ package com.myProject.demo.exception;
 
 import com.myProject.demo.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(
@@ -21,6 +27,8 @@ public class GlobalExceptionHandler {
                .findFirst()
                .map(err -> err.getField() + " " + err.getDefaultMessage())
                .orElse("Validation Failed");
+
+       log.error("Validation Failed");
 
        ApiError error = new ApiError(
                400,
@@ -41,6 +49,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+        log.error("Not found");
 
         return ResponseEntity.status(404).body(error);
     }
@@ -55,6 +64,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
+        log.error("Data conflict");
 
         return ResponseEntity.status(409).body(error);
     }

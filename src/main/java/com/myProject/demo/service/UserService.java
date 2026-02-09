@@ -6,16 +6,20 @@ import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Transactional
 public class UserService {
 
     private final UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -61,6 +65,7 @@ public class UserService {
         if(userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already exists");
         }
+        log.info("User created with email {}", request.getEmail());
         return mapAndSaveUser(request, user);
     }
 
@@ -73,6 +78,7 @@ public class UserService {
             && userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already exists");
         }
+        log.info("User updated from {} to {}", existingUser.getEmail(), request.getEmail());
         return mapAndSaveUser(request, existingUser);
     }
 
@@ -81,14 +87,17 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id " + id
                 ));
+        log.info("User deleted with id {}", id);
         userRepository.delete(user);
     }
 
     public UserResponse patchUserOrThrow(Integer id, UserRequest request) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id " + id
-                ));
+                .orElseThrow(() -> {
+                    log.info("User not found");
+                    return new ResourceNotFoundException(
+                        "User not found with id " + id);
+                });
 
         if(request.getFirstName() != null) {
             existingUser.setFirstName(request.getFirstName());
@@ -105,6 +114,7 @@ public class UserService {
         if(request.getEmail() != null) {
             if(!existingUser.getEmail().equals(request.getEmail())
                     && userRepository.existsByEmail(request.getEmail())) {
+                log.warn("Email conflict");
                 throw new ConflictException("Email already exists");
             }
             existingUser.setEmail(request.getEmail());
