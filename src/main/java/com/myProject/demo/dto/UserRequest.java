@@ -6,21 +6,27 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 
+@Schema(description = "Request object representing a user")
 public class UserRequest {
 
     @NotBlank
+    @Schema(description = "First name of the user", example = "Arpita")
     private String firstName;
+    @Schema(description = "Middle name of the user", example = "Mallikarjun")
     private String middleName;
 
     @NotBlank
+    @Schema(description = "Last name of the user", example = "Patil")
     private String lastName;
-
+    @Schema(description = "Date of Birth of the user")
     private LocalDate dateOfBirth;
 
     @NotBlank
     @Email
-    @Schema(description="User email")
+    @Schema(description="User email address")
     private String email;
+
+    @Schema(description = "User phone number")
     private String phone;
 
     public String getFirstName() {

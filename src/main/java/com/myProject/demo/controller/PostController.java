@@ -23,6 +23,7 @@ public class PostController {
 
     @GetMapping
     @Operation(summary="Get All Posts")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Posts Fetched")
     public ResponseEntity<ApiResponse<Page<PostResponse>>> getPosts(
             @PageableDefault(size = 5, sort = "id") Pageable pageable
     ) {
@@ -32,6 +33,8 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @Operation(summary="Get Post By Id")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Post Fetched By ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Post not found with ID")
     public ResponseEntity<ApiResponse<PostResponse>> getPostById(@PathVariable Integer postId) {
         PostResponse post = postService.getPostByIdOrThrow(postId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Post By ID fetched", post));

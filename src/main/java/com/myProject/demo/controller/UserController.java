@@ -30,6 +30,7 @@ public class UserController {
 
     @GetMapping
     @Operation(summary="Get All Users")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Users Fetched")
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String email,
@@ -42,13 +43,18 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary="Get User By Id")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User Fetched")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
         UserResponse response = userService.getUserResponseByIdOrThrow(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User fetched", response));
     }
 
     @PostMapping
-    @Operation(summary="Create User")
+    @Operation(summary="Create new user")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "User created")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Validation error")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email conflict")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody UserRequest request
     ) {
@@ -61,6 +67,9 @@ public class UserController {
 
     @PutMapping("/{id}")
     @Operation(summary="Update User")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User updated")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email conflict")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Integer id,
             @Valid @RequestBody UserRequest request
@@ -71,6 +80,8 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary="Delete User")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User deleted")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Integer id) {
         userService.deleteUserOrThrow(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User deleted", null));
@@ -78,6 +89,9 @@ public class UserController {
 
     @PatchMapping("/{id}")
     @Operation(summary="Patch User")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User created")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email conflict")
     public ResponseEntity<ApiResponse<UserResponse>> patchUser(
             @PathVariable Integer id,
             @RequestBody UserRequest request
@@ -88,6 +102,8 @@ public class UserController {
 
     @GetMapping("/{userId}/posts")
     @Operation(summary="Get All Posts By User")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Posts Fetched by User")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     public ResponseEntity<ApiResponse<Page<PostResponse>>> getPostsByUser(
             @PathVariable Integer userId,
             @PageableDefault(size = 5, sort = "id") Pageable pageable
@@ -99,6 +115,8 @@ public class UserController {
 
     @PostMapping("/{userId}/posts")
     @Operation(summary="Create Post")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Post created")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
             @PathVariable Integer userId,
             @Valid @RequestBody PostRequest request
@@ -111,6 +129,9 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/posts/{postId}")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Post created")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Post not found")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "User ID conflict")
     public ResponseEntity<ApiResponse<PostResponse>> updatePost(
             @PathVariable Integer userId,
             @PathVariable Integer postId,
@@ -121,6 +142,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/posts/{postId}")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Post deleted")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Post not found")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Post conflict")
     public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Integer userId ,@PathVariable Integer postId) {
         postService.deletePostOrThrow(userId, postId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Post", null));
