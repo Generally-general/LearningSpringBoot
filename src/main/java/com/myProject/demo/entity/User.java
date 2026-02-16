@@ -24,6 +24,25 @@ public class User {
     private String email;
     private LocalDate dateOfBirth;
     private String phone;
+    @NotBlank
+    private String password;
+    private String role;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

@@ -1,6 +1,11 @@
 package com.myProject.demo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDateTime;
 
 @Schema(description = "Response object representing a user")
 public class UserResponse {
@@ -12,6 +17,12 @@ public class UserResponse {
     private String lastName;
     @Schema(description = "User email address", example = "test@gmail.com")
     private String email;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public Integer getId() {
         return id;

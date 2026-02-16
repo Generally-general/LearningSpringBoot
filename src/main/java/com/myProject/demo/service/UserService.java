@@ -134,7 +134,12 @@ public class UserService {
         existingUser.setDateOfBirth(request.getDateOfBirth());
         existingUser.setEmail(request.getEmail());
         existingUser.setPhone(request.getPhone());
-
+        if(request.getPassword() != null) {
+            existingUser.setPassword(request.getPassword());
+        }
+        if(existingUser.getId() == null) {
+            existingUser.setRole("USER");
+        }
         User saved = userRepository.save(existingUser);
         return toResponse(saved);
     }
