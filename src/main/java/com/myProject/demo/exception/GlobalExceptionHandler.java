@@ -60,4 +60,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(409).body(response);
     }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthentication(
+            AuthenticationException ex
+    ) {
+        log.warn("Authentication error: {}", ex.getMessage());
+
+        ApiResponse<Void> response = new ApiResponse<>(false, ex.getMessage(), null);
+
+        return ResponseEntity.status(401).body(response);
+    }
 }

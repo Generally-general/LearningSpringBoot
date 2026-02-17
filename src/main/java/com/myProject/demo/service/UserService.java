@@ -3,6 +3,7 @@ package com.myProject.demo.service;
 import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
+import com.myProject.demo.exception.AuthenticationException;
 import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
@@ -28,7 +29,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     public UserResponse getUserResponseByIdOrThrow(Integer id) {
         User user = userRepository.findById(id)
