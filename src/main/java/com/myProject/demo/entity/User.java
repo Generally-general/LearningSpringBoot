@@ -1,10 +1,7 @@
 package com.myProject.demo.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,11 +18,12 @@ public class User {
     private String firstName;
     private String middleName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
     private LocalDate dateOfBirth;
     private String phone;
-    @NotBlank
     private String password;
+
     private String role;
 
     public String getPassword() {
@@ -45,7 +43,7 @@ public class User {
     }
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
