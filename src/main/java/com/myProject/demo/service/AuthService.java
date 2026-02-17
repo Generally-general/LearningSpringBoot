@@ -16,12 +16,15 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       UserService userService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
     }
 
     public UserResponse login(String email, String rawPassword) {
@@ -34,6 +37,6 @@ public class AuthService {
             throw new AuthenticationException("Invalid Email or Password");
         }
 
-        return toResponse(user);
+        return userService.toResponse(user);
     }
 }
