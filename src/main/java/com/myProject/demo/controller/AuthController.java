@@ -2,7 +2,7 @@ package com.myProject.demo.controller;
 
 import com.myProject.demo.dto.ApiResponse;
 import com.myProject.demo.dto.LoginRequest;
-import com.myProject.demo.dto.UserResponse;
+import com.myProject.demo.dto.LoginResponse;
 import com.myProject.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,10 +26,10 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(description = "Log in")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login Successful")
-    public ResponseEntity<ApiResponse<UserResponse>> login(
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        UserResponse data = authService.login(request.getEmail(), request.getPassword());
+        LoginResponse data = authService.login(request.getEmail(), request.getPassword());
 
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Login successful", data)

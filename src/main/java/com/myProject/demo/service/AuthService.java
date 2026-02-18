@@ -1,5 +1,6 @@
 package com.myProject.demo.service;
 
+import com.myProject.demo.dto.LoginResponse;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.AuthenticationException;
@@ -17,26 +18,33 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final JwtService jwtService;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       UserService userService) {
+                       UserService userService,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
-    public UserResponse login(String email, String rawPassword) {
+    public LoginResponse login(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Invalid Email or Password"
+                        "Invalid Credentials"
                 ));
 
         if(!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new AuthenticationException("Invalid Email or Password");
+            throw new AuthenticationException("Invalid Credentials");
         }
 
-        return userService.toResponse(user);
+        UserResponse userResponse = userService.toResponse(user);
+
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new LoginResponse(userResponse, token);
     }
 }
