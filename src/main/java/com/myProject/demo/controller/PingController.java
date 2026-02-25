@@ -3,11 +3,14 @@ package com.myProject.demo.controller;
 import com.myProject.demo.service.PingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/admin")
 public class PingController {
     private final PingService pingService;
 
@@ -30,5 +33,11 @@ public class PingController {
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok(pingService.health());
+    }
+
+    @GetMapping("test")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Protected admin endpoint");
     }
 }

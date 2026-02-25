@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class UserController {
 
     @GetMapping
     @Operation(summary="Get All Users")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Users Fetched")
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
             @RequestParam(required = false) String firstName,
@@ -80,6 +82,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary="Delete User")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User deleted")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Integer id) {
