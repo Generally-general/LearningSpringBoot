@@ -1,9 +1,9 @@
 package com.myProject.demo.dto;
 
 public class ApiError {
-    private int status;
-    private String message;
-    private String path;
+    private final int status;
+    private final String message;
+    private final String path;
 
     public ApiError(int status, String message, String path) {
         this.status = status;

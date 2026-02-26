@@ -2,6 +2,8 @@ package com.myProject.demo.security;
 
 import com.myProject.demo.repository.UserRepository;
 import com.myProject.demo.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,11 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = authHeader.substring(7);
-            String email = jwtService.extractEmail(token);
+            Integer userId = jwtService.extractUserId(token);
 
-            if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                userRepository.findByEmail(email).ifPresent(user -> {
+                userRepository.findById(userId).ifPresent(user -> {
                     if(jwtService.isTokenValid(token, user.getEmail())) {
                         List<SimpleGrantedAuthority> authorities =
                                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
@@ -62,8 +64,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 });
             }
+        } catch (ExpiredJwtException e) {
+            log.error("401 Unauthorized: Token has expired. Please login again.");
+            SecurityContextHolder.clearContext();
+        } catch (JwtException e) {
+            log.error("401 Unauthorized: Invalid token. Authentication failed.");
+            SecurityContextHolder.clearContext();
         } catch (Exception e) {
             log.warn("JWT error: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

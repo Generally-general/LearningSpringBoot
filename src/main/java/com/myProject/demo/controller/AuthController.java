@@ -1,9 +1,6 @@
 package com.myProject.demo.controller;
 
-import com.myProject.demo.dto.ApiResponse;
-import com.myProject.demo.dto.LoginRequest;
-import com.myProject.demo.dto.LoginResponse;
-import com.myProject.demo.dto.UserResponse;
+import com.myProject.demo.dto.*;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.AuthenticationException;
 import com.myProject.demo.service.AuthService;
@@ -55,6 +52,17 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Fetched Me", data)
+        );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshAccessToken(
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        LoginResponse data = authService.refreshAccessToken(request.getRefreshToken());
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Token refreshed successfully", data)
         );
     }
 }

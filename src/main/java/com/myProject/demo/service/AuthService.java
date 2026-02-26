@@ -4,6 +4,7 @@ import com.myProject.demo.dto.LoginResponse;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.AuthenticationException;
+import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -19,7 +20,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final JwtService jwtService;
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -43,8 +45,25 @@ public class AuthService {
 
         UserResponse userResponse = userService.toResponse(user);
 
-        String token = jwtService.generateToken(user);
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        return new LoginResponse(userResponse, token);
+        return new LoginResponse(userResponse, accessToken, refreshToken);
+    }
+
+    public LoginResponse refreshAccessToken(String refreshToken) {
+        String email = jwtService.extractEmail(refreshToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+
+        if(jwtService.isTokenValid(refreshToken, user.getEmail())) {
+            String newAccessToken = jwtService.generateToken(user);
+
+            return new LoginResponse(userService.toResponse(user), newAccessToken, refreshToken);
+        }
+
+        throw new ConflictException("Invalid Refresh Token");
     }
 }

@@ -40,9 +40,20 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex ->
-                        ex.authenticationEntryPoint((req, res, e) ->
-                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                        )
+                        ex.authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+
+                            String body = """
+                            {
+                              "success": false,
+                              "message": "Unauthorized",
+                              "data": null
+                            }
+                            """;
+
+                            res.getWriter().write(body);
+                        })
                 )
                 .addFilterBefore(jwtFilter,
                         UsernamePasswordAuthenticationFilter.class)
