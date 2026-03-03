@@ -11,8 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -83,6 +82,9 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Post not found with id " + postId
                 ));
+        if(authenticatedUser == null) {
+            throw new AccessDeniedException("Unauthorised");
+        }
         if(!authenticatedUser.getRole().equals("ADMIN") &&
                 !existingPost.getUser().getId().equals(authenticatedUser.getId())) {
             throw new AccessDeniedException("You do not have permission to delete this post");

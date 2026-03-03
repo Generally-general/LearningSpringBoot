@@ -3,7 +3,6 @@ package com.myProject.demo.service;
 import com.myProject.demo.dto.UserRequest;
 import com.myProject.demo.dto.UserResponse;
 import com.myProject.demo.entity.User;
-import com.myProject.demo.exception.AuthenticationException;
 import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.UserRepository;
@@ -14,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
+
 
 
 @Service
@@ -30,13 +31,20 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponse getUserResponseByIdOrThrow(Integer id) {
-        User user = userRepository.findById(id)
+    public UserResponse getUserResponseByIdOrThrow(User authenticatedUser, Integer id) throws AccessDeniedException {
+        User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id " + id
                 ));
+        if(authenticatedUser == null) {
+            throw new AccessDeniedException("Unauthorized");
+        }
 
-        return toResponse(user);
+        if(!authenticatedUser.getRole().equals("ADMIN") &&
+            !authenticatedUser.getId().equals(id)) {
+            throw new AccessDeniedException("You can only view your own profile");
+        }
+        return toResponse(targetUser);
     }
 
     public Page<UserResponse> getUsers(

@@ -71,4 +71,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(401).body(response);
     }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex
+    ) {
+        log.warn("Access Denied: {}", ex.getMessage());
+        ApiResponse<Void> response = new ApiResponse<>(false, ex.getMessage(), null);
+
+        return ResponseEntity.status(403).body(response);
+    }
 }

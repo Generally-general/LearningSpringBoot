@@ -1,6 +1,7 @@
 package com.myProject.demo.controller;
 
 import com.myProject.demo.dto.*;
+import com.myProject.demo.entity.User;
 import com.myProject.demo.service.PostService;
 import com.myProject.demo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,8 +13,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -47,8 +50,12 @@ public class UserController {
     @Operation(summary="Get User By Id")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User Fetched")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Integer id) {
-        UserResponse response = userService.getUserResponseByIdOrThrow(id);
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Unauthorised")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(
+            @AuthenticationPrincipal User authenticatedUser,
+            @PathVariable Integer id
+    ) throws AccessDeniedException {
+        UserResponse response = userService.getUserResponseByIdOrThrow(authenticatedUser, id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User fetched", response));
     }
 
