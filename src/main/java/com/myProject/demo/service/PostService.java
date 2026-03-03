@@ -4,7 +4,6 @@ import com.myProject.demo.dto.PostRequest;
 import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.entity.Post;
 import com.myProject.demo.entity.User;
-import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.PostRepository;
 import com.myProject.demo.repository.UserRepository;
@@ -13,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,24 +64,28 @@ public class PostService {
         return mapAndSavePost(request, post);
     }
 
-    public PostResponse updatePostOrThrow(Integer userId, Integer postId, PostRequest request) {
+    public PostResponse updatePostOrThrow(User authenticatedUser, Integer postId, PostRequest request) throws AccessDeniedException {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Post not found with id " + postId
                 ));
-        if(!existingPost.getUser().getId().equals(userId)) {
-            throw new ConflictException("Post does not belong to this user");
+        if(authenticatedUser == null) {
+            throw new AccessDeniedException("Unauthorised");
+        }
+        if(!existingPost.getUser().getId().equals(authenticatedUser.getId())) {
+            throw new AccessDeniedException("Only the owner can update this post");
         }
         return mapAndSavePost(request, existingPost);
     }
 
-    public void deletePostOrThrow(Integer userId, Integer postId) {
+    public void deletePostOrThrow(User authenticatedUser, Integer postId) throws AccessDeniedException {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Post not found with id " + postId
                 ));
-        if(!existingPost.getUser().getId().equals(userId)) {
-            throw new ConflictException("Post does not belong to this user");
+        if(!authenticatedUser.getRole().equals("ADMIN") &&
+                !existingPost.getUser().getId().equals(authenticatedUser.getId())) {
+            throw new AccessDeniedException("You do not have permission to delete this post");
         }
         postRepository.delete(existingPost);
     }
