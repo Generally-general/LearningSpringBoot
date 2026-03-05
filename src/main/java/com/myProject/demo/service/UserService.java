@@ -31,7 +31,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponse getUserResponseByIdOrThrow(User authenticatedUser, Integer id) throws AccessDeniedException {
+    public UserResponse getUserResponseByIdOrThrow(User authenticatedUser, Integer id) {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id " + id

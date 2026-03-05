@@ -40,19 +40,32 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> me(Authentication authentication) {
+    public ResponseEntity<ApiResponse<UserResponse>> me(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Fetched Me", userService.toResponse(user)));
+    }
 
-        if (authentication == null ||
-                authentication.getPrincipal() == null ||
-                !(authentication.getPrincipal() instanceof User user)) {
-            throw new AuthenticationException("Unauthorized");
-        }
+    @PutMapping("/me")
+    @Operation(summary = "Update my own profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updateMe(
+            @AuthenticationPrincipal User authenticatedUser,
+            @Valid @RequestBody UserRequest request
+    ) {
+        UserResponse updated = userService.updateUserOrThrow(authenticatedUser.getId(), request);
 
-        UserResponse data = userService.toResponse(user);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated", updated));
+    }
 
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Fetched Me", data)
-        );
+    @PatchMapping("/me")
+    @Operation(summary = "Patch my own profile")
+    public ResponseEntity<ApiResponse<UserResponse>> patchMe(
+            @AuthenticationPrincipal User authenticatedUser,
+            @Valid @RequestBody UserRequest request
+    ) {
+        UserResponse updated = userService.patchUserOrThrow(authenticatedUser.getId(), request);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Profile patched", updated));
     }
 
     @PostMapping("/refresh")

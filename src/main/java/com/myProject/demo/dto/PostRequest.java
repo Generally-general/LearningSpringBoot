@@ -2,8 +2,14 @@ package com.myProject.demo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "Request object representing a post")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostRequest {
     @NotBlank
     @Schema(description = "Title of the post")
@@ -16,27 +22,6 @@ public class PostRequest {
     @Schema(description = "User's ID")
     private Integer userId;
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+    @Schema(description = "Version of the post")
+    private Long version;
 }

@@ -4,6 +4,7 @@ import com.myProject.demo.dto.PostRequest;
 import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.entity.Post;
 import com.myProject.demo.entity.User;
+import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
 import com.myProject.demo.repository.PostRepository;
 import com.myProject.demo.repository.UserRepository;
@@ -33,12 +34,11 @@ public class PostService {
                 .map(this::toResponse);
     }
 
-    public Page<PostResponse> getPostsByUserOrThrow(Integer userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id " + userId
-                ));
-        Page<Post> posts = postRepository.findByUser(user, pageable);
+    public Page<PostResponse> getPostsByUserOrThrow(User authenticatedUser, Pageable pageable) {
+        if(authenticatedUser == null) {
+            throw new AccessDeniedException("Unauthorised");
+        }
+        Page<Post> posts = postRepository.findByUser(authenticatedUser, pageable);
 
         return posts.map(this::toResponse);
     }
@@ -52,18 +52,23 @@ public class PostService {
         return toResponse(post);
     }
 
-    public PostResponse createPost(Integer userId, PostRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with id " + userId
-                ));
+    public PostResponse createPost(User authenticatedUser, PostRequest request) {
+        if(authenticatedUser == null) {
+            throw new AccessDeniedException("Unauthorised");
+        }
         Post post = new Post();
-        post.setUser(user);
+        post.setUser(authenticatedUser);
+
+        post.setCreatedAt(LocalDateTime.now());
 
         return mapAndSavePost(request, post);
     }
 
-    public PostResponse updatePostOrThrow(User authenticatedUser, Integer postId, PostRequest request) throws AccessDeniedException {
+    public PostResponse updatePostOrThrow(
+            User authenticatedUser,
+            Integer postId,
+            PostRequest request
+    ) {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Post not found with id " + postId
@@ -73,6 +78,9 @@ public class PostService {
         }
         if(!existingPost.getUser().getId().equals(authenticatedUser.getId())) {
             throw new AccessDeniedException("Only the owner can update this post");
+        }
+        if(!existingPost.getVersion().equals(request.getVersion())) {
+            throw new ConflictException("Post was modified by another user");
         }
         return mapAndSavePost(request, existingPost);
     }
@@ -110,6 +118,7 @@ public class PostService {
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
         dto.setCreatedAt(post.getCreatedAt());
+        dto.setVersion(post.getVersion());
         return dto;
     }
 

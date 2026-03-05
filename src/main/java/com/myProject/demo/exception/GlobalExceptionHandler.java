@@ -1,6 +1,7 @@
 package com.myProject.demo.exception;
 
 import com.myProject.demo.dto.ApiResponse;
+import jakarta.persistence.OptimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +81,15 @@ public class GlobalExceptionHandler {
         ApiResponse<Void> response = new ApiResponse<>(false, ex.getMessage(), null);
 
         return ResponseEntity.status(403).body(response);
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLock() {
+        ApiResponse<Void> response =
+                new ApiResponse<>(
+                        false, "Post was modified by another user. Please refresh", null
+                );
+
+        return ResponseEntity.status(409).body(response);
     }
 }

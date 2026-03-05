@@ -15,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.AccessDeniedException;
-import java.util.List;
+import org.springframework.security.access.AccessDeniedException;
 
 @RestController
 @RequestMapping("/users")
@@ -35,7 +33,7 @@ public class UserController {
     @GetMapping
     @Operation(summary="Get All Users")
     @PreAuthorize("hasRole('ADMIN')")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Users Fetched")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users Fetched")
     public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String email,
@@ -48,13 +46,14 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary="Get User By Id")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User Fetched")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Unauthorised")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(
             @AuthenticationPrincipal User authenticatedUser,
             @PathVariable Integer id
-    ) throws AccessDeniedException {
+    ) {
         UserResponse response = userService.getUserResponseByIdOrThrow(authenticatedUser, id);
         return ResponseEntity.ok(new ApiResponse<>(true, "User fetched", response));
     }
@@ -75,6 +74,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary="Update User")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User updated")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
@@ -99,6 +99,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     @Operation(summary="Patch User")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User created")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email conflict")
@@ -110,31 +111,16 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(true, "User patched", updated));
     }
 
-    @GetMapping("/{userId}/posts")
+    @GetMapping("/posts")
     @Operation(summary="Get All Posts By User")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Posts Fetched by User")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
     public ResponseEntity<ApiResponse<Page<PostResponse>>> getPostsByUser(
-            @PathVariable Integer userId,
+            @AuthenticationPrincipal User authenticatedUser,
             @PageableDefault(size = 5, sort = "id") Pageable pageable
     ) {
-        Page<PostResponse> response = postService.getPostsByUserOrThrow(userId, pageable);
+        Page<PostResponse> response = postService.getPostsByUserOrThrow(authenticatedUser, pageable);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "Posts fetched", response));
-    }
-
-    @PostMapping("/{userId}/posts")
-    @Operation(summary="Create Post")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Post created")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "User not found")
-    public ResponseEntity<ApiResponse<PostResponse>> createPost(
-            @PathVariable Integer userId,
-            @Valid @RequestBody PostRequest request
-    ) {
-        PostResponse savedPost = postService.createPost(userId, request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "Post created", savedPost));
     }
 }
