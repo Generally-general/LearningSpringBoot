@@ -95,4 +95,15 @@ public class PostController {
         postService.deletePostOrThrow(authenticatedUser, postId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Post deleted", null));
     }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<ApiResponse<Void>> likePost(
+            @PathVariable Integer postId
+    ) {
+        postService.likePost(postId);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Post liked", null)
+        );
+    }
 }

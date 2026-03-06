@@ -100,6 +100,15 @@ public class PostService {
         postRepository.delete(existingPost);
     }
 
+    @Transactional
+    public void likePost(Integer postId) {
+        int updated = postRepository.incrementLikes(postId);
+
+        if(updated == 0) {
+            throw new ResourceNotFoundException("Post not found");
+        }
+    }
+
     private PostResponse mapAndSavePost(PostRequest request, Post existingPost) {
         existingPost.setTitle(request.getTitle());
         existingPost.setContent(request.getContent());
@@ -119,6 +128,7 @@ public class PostService {
         dto.setContent(post.getContent());
         dto.setCreatedAt(post.getCreatedAt());
         dto.setVersion(post.getVersion());
+        dto.setLikes(post.getLikes());
         return dto;
     }
 

@@ -26,4 +26,7 @@ public class PostResponse {
 
     @Schema(description = "Version of the post")
     private Long version;
+
+    @Schema(description = "Likes of the post")
+    private Integer likes;
 }
