@@ -124,6 +124,22 @@ public class PostService {
         postRepository.incrementLikes(postId);
     }
 
+    @Transactional
+    public void unlikePost(User authenticatedUser, Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Post not found with id " + postId
+                ));
+
+        boolean liked = postLikeRepository.existsByPostIdAndUserId(postId, authenticatedUser.getId());
+
+        if(!liked) throw new ConflictException("Post not liked yet");
+
+        postLikeRepository.deleteByPostIdAndUserId(postId, authenticatedUser.getId());
+
+        postRepository.decrementLikes(postId);
+    }
+
     private PostResponse mapAndSavePost(PostRequest request, Post existingPost) {
         existingPost.setTitle(request.getTitle());
         existingPost.setContent(request.getContent());

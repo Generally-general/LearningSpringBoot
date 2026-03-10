@@ -25,4 +25,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     WHERE p.id = :postId
     """)
     int incrementLikes(Integer postId);
+
+    @Modifying
+    @Query("""
+    UPDATE Post p
+    SET p.likes = p.likes - 1
+    WHERE p.id = :postId AND p.likes > 0
+    """)
+    int decrementLikes(Integer postId);
 }

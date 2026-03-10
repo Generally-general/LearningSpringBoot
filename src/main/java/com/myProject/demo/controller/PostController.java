@@ -107,4 +107,16 @@ public class PostController {
                 new ApiResponse<>(true, "Post liked", null)
         );
     }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<ApiResponse<Void>> unlikePost(
+            @AuthenticationPrincipal User authenticatedUser,
+            @PathVariable Integer postId
+    ) {
+        postService.unlikePost(authenticatedUser, postId);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Post unliked", null)
+        );
+    }
 }
