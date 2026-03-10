@@ -3,9 +3,11 @@ package com.myProject.demo.service;
 import com.myProject.demo.dto.PostRequest;
 import com.myProject.demo.dto.PostResponse;
 import com.myProject.demo.entity.Post;
+import com.myProject.demo.entity.PostLike;
 import com.myProject.demo.entity.User;
 import com.myProject.demo.exception.ConflictException;
 import com.myProject.demo.exception.ResourceNotFoundException;
+import com.myProject.demo.repository.PostLikeRepository;
 import com.myProject.demo.repository.PostRepository;
 import com.myProject.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -21,10 +23,12 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, PostLikeRepository postLikeRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.postLikeRepository = postLikeRepository;
     }
 
     public Page<PostResponse> getPosts(
@@ -101,12 +105,23 @@ public class PostService {
     }
 
     @Transactional
-    public void likePost(Integer postId) {
-        int updated = postRepository.incrementLikes(postId);
+    public void likePost(User authenticatedUser, Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Post not found with id " + postId
+                ));
 
-        if(updated == 0) {
-            throw new ResourceNotFoundException("Post not found");
-        }
+        boolean alreadyLiked = postLikeRepository.existsByPostIdAndUserId(postId, authenticatedUser.getId());
+
+        if(alreadyLiked) throw new ConflictException("Post already Liked");
+
+        PostLike like = new PostLike();
+        like.setPost(post);
+        like.setUser(authenticatedUser);
+
+        postLikeRepository.save(like);
+
+        postRepository.incrementLikes(postId);
     }
 
     private PostResponse mapAndSavePost(PostRequest request, Post existingPost) {

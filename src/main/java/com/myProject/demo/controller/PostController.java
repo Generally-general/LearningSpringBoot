@@ -98,9 +98,10 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<Void>> likePost(
+            @AuthenticationPrincipal User authenticatedUser,
             @PathVariable Integer postId
     ) {
-        postService.likePost(postId);
+        postService.likePost(authenticatedUser, postId);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Post liked", null)
